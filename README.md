@@ -1,57 +1,84 @@
-# 🏴‍☠️ Pirates_Subbers.sh  
-> ⚓ *"Those who control the seas of the subdomains… control the map of the web."*
+# 🏴‍☠️ Pirate-Subbers v3.0
+
+![Pirate-Subbers Banner](Pirate_Subbers.png)
+
+**Pirate-Subbers** is a professional-grade subdomain enumeration suite designed for Bug Bounty hunters and Security Researchers. It consolidates **22+ industry-standard tools** into a single, high-speed engine, specializing in both passive data harvesting and active DNS discovery.
+
+Developed by **Kazi Sabbir**.
 
 ---
 
-## 🧭 Overview
+## 🚀 The 3 Specialized Modes
 
-**Pirates_Subbers.sh** a **clean, fast, and reliable passive subdomain enumerator** that doesn’t need any API keys, paid services, or external dependencies.
+Pirate-Subz is engineered with three distinct operational modes to optimize your reconnaissance workflow:
 
-It leverages **publicly available sources** to gather subdomains efficiently and consolidate them into a single, deduplicated list all from your terminal.
+### 1. 🔍 Passive Mode (`-ps` / `--passive`)
+**Stealth-focused data gathering.**
+- **Workflow**: Queries 20+ external APIs, archives, and certificate logs.
+- **Tools**: Subfinder, Amass (Passive), Assetfinder, Chaos, Findomain, Haktrails, Gau, Github, Gitlab, Shosubgo, Censys, Crt.sh, JLDC, Alienvault, Subdomain-center, Certspotter, VirusTotal, HackerTarget, RapidDNS, and WebArchive.
+- **Detection Risk**: Zero. It does not interact with the target's infrastructure.
 
----
+### 2. ⚡ Active Mode (`-as` / `--active`)
+**Intrusive discovery and validation.**
+- **Workflow**: Performs high-speed DNS bruteforcing and SSL scraping.
+- **Tools**: **Puredns** (DNS Bruteforce) and **Cero** (SSL/TLS SAN extraction).
+- **Detection Risk**: High. Connects directly to the target's servers.
 
-## 🏴‍☠️ Key Features
-
-- ⚙️ **No API keys required** — 100% public & open-source data sources  
-- 🧠 **Passive Enumeration Only** — stays stealthy and avoids detection  
-- 🧹 **Clean & Deduplicated Output** — no repeated or junk domains  
-- ⚡ **Fast & Parallel Queries** — multiple sources hit at once  
-- 📜 **Custom Timeout Control** — tune speed vs accuracy  
-- 🔒 **Fully Offline Execution** — only network calls to public data sources  
-
----
-
-## 🌊 Data Sources
-
-Pirates_Subbers scrapes multiple **publicly accessible services** for subdomain data:
-- 🏴 [crt.sh](https://crt.sh)  
-- 🏴 [CertSpotter](https://certspotter.com)  
-- 🏴 [Web Archive](https://web.archive.org)  
-- 🏴 [JLDC Anubis](https://jldc.me/anubis/subdomains/)  
-- 🏴 [HackerTarget](https://api.hackertarget.com/hostsearch/)  
-- 🏴 [AlienVault OTX](https://otx.alienvault.com)  
-- 🏴 [Subdomain Center](https://api.subdomain.center)  
-- 🏴 [RapidDNS](https://rapiddns.io)  
-
-> 🪶 More sources coming soon — powered by community contributions.
+### 3. 🛡️ Hard Mode (`-hard`)
+**The Complete Engine (Recommended for Deep Recon).**
+- **Step 1**: Runs a full **Passive Scan** to build a base list.
+- **Step 2**: Runs an **Active Scan** to find hidden hostnames.
+- **Step 3**: Combines both results into a **"Seed List"**.
+- **Step 4**: Uses **AlterX** to generate millions of intelligent DNS mutations from the seeds.
+- **Step 5**: Validates mutations using **Puredns** to find undocumented assets.
 
 ---
 
-## ⚓ Installation
+## 🛠️ Installation & Setup
 
+1. **Clone & Install**:
+   ```bash
+   git clone https://github.com/kazisabu/Pirates_Subbers.git
+   cd Pirate-Subbers
+   chmod +x Pirate_Subbers.sh
+   ./Pirate_Subbers.sh
+   ```
+2. **Configure**: Open `config.txt` and add your API keys for Chaos, Shodan, and GitHub to maximize results.
+3. **DNS Resolvers**: Ensure `resolvers.txt` is updated for accurate `Puredns` results.
+
+---
+
+## 📖 Usage Examples
+
+### Standard Recon (Balanced)
 ```bash
-git clone https://github.com/kazisabu/Pirates_Subbers.git
-cd Pirates_Subbers
-chmod +x Pirates_Subbers.sh
+./Pirate-Subbers.sh -d example.com -p -hp
 ```
-## ☠️ Usage
+
+### Stealth Monitoring (Passive Only)
 ```bash
-# Simple enumeration
-./Pirates_Subbers.sh example.com
+./Pirate-Subbers.sh -d example.com -ps -p -s | anew live_subdomains.txt
+```
 
-# Custom output and verbose mode
-./Pirates_Subbers.sh example.com -v -o results.txt
+### Deep Asset Discovery (Hard Mode)
+```bash
+./Pirate-Subbers.sh -d example.com -hard -p -hp
+```
 
-# Extend timeout for slow connections
-./Pirates_Subbers.sh example.com --timeout 120
+---
+
+## ⚙️ Key Options
+
+- `-d, --domain`: Target domain.
+- `-l, --list`: List of multiple domains to scan.
+- `-p, --parallel`: Enables multi-threaded tool execution (much faster).
+- `-hp, --http-probe`: Verifies if discovered subdomains are running a web server.
+- `-s, --silent`: Clean output for piping into other tools.
+
+---
+
+## 👤 Contact & Credits
+
+**Author**: Kazi Sabbir    
+**LinkedIn**: [linkedin.com/in/kazisabbir1337](https://www.linkedin.com/in/kazisabbir1337)  
+
