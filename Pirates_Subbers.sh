@@ -144,18 +144,18 @@ Haktrails() {
 		}
 		echo "$domain" | haktrails subdomains 1> tmp-haktrails-$domain 2>/dev/null
 		[[ ${PARALLEL} == True ]] || kill ${PID} 2>/dev/null
-		echo -e "$BOLD[*] Haktrails$NC: $(wc -l tmp-haktrails-$domain)"
+		echo -e "$BOLD[*] Haktrails$NC: $(wc -l < tmp-haktrails-$domain 2>/dev/null || echo 0)"
 	}
 }
 
 Gau() {
-        [ "$silent" == True ] &&  gau --threads 10 --subs $domain |  unfurl -u domains | anew pirate-$domain.txt || {
+        [ "$silent" == True ] &&  gau --threads 10 --subs $domain 2>/dev/null |  unfurl -u domains | anew pirate-$domain.txt || {
                 [[ ${PARALLEL} == True ]] || { spinner "${BOLD}Gau${NC}" &
                         PID="$!"
                 }
-                gau --threads 10 --subs $domain | unfurl -u domains > tmp-gau-$domain
+                gau --threads 10 --subs $domain 2>/dev/null | unfurl -u domains > tmp-gau-$domain
                 [[ ${PARALLEL} == True ]] || kill ${PID} 2>/dev/null
-                echo -e "$BOLD[*] Gau$NC: $( wc -l < tmp-gau-$domain)"
+                echo -e "$BOLD[*] Gau$NC: $( wc -l < tmp-gau-$domain 2>/dev/null || echo 0)"
         }
 }
 
@@ -193,13 +193,14 @@ Cero() {
 }
 
 Shosubgo() {
+	[ -z "$SHODAN_API_KEY" ] && return
 	[ "$silent" == True ] && shosubgo -d $domain -s $SHODAN_API_KEY 2>/dev/null | anew pirate-$domain.txt || {
 		[[ ${PARALLEL} == True ]] || { spinner "${BOLD}Shosubgo${NC}" &
 			PID="$!"
 		}
 		shosubgo -d $domain -s $SHODAN_API_KEY 1> tmp-shosubgo-$domain 2>/dev/null
 		[[ ${PARALLEL} == True ]] || kill ${PID} 2>/dev/null
-		echo -e "$BOLD[*] Shosubgo$NC: $( wc -l < tmp-shosubgo-$domain)"
+		echo -e "$BOLD[*] Shosubgo$NC: $( wc -l < tmp-shosubgo-$domain 2>/dev/null || echo 0)"
 	}
 }
 
@@ -219,7 +220,7 @@ Crtsh() {
 		[[ ${PARALLEL} == True ]] || { spinner "${BOLD}Crtsh${NC}" &
 			PID="$!"
 		}
-		timeout $TIMEOUT curl -sk "https://crt.sh/?q=%.$domain&output=json" | tr ',' '\n' | awk -F'"' '/name_value/ {gsub(/\*\./, "", $4); gsub(/\\n/,"\n",$4);print $4}' | grep -w "$domain\$" | sort -u > tmp-crt-$domain
+		timeout $TIMEOUT curl -sk "https://crt.sh/?q=%.$domain&output=json" 2>/dev/null | tr ',' '\n' | awk -F'"' '/name_value/ {gsub(/\*\./, "", $4); gsub(/\\n/,"\n",$4);print $4}' | grep -w "$domain\$" | sort -u > tmp-crt-$domain
 		[[ ${PARALLEL} == True ]] || kill ${PID} 2>/dev/null
 		echo -e "$BOLD[*] Crtsh$NC: $( wc -l < tmp-crt-$domain 2>/dev/null || echo 0)"
 	}
@@ -248,11 +249,11 @@ Alienvault() {
 }
 
 Subdomain-center() {
-  [ "$silent" == True ] && timeout $TIMEOUT curl "https://api.subdomain.center/?domain=$domain" -s | jq -r '.[]' | sort -u | anew pirate-$domain.txt || {
+  [ "$silent" == True ] && timeout $TIMEOUT curl "https://api.subdomain.center/?domain=$domain" -s | jq -r '.[]' 2>/dev/null | sort -u | anew pirate-$domain.txt || {
 		[[ ${PARALLEL} == True ]] || { spinner "${BOLD}Subdomain center${NC}" &
 			PID="$!"
 		}
-		timeout $TIMEOUT curl "https://api.subdomain.center/?domain=$domain" -s | jq -r '.[]' | sort -u > tmp-subdomaincenter-$domain
+		timeout $TIMEOUT curl "https://api.subdomain.center/?domain=$domain" -s | jq -r '.[]' 2>/dev/null | sort -u > tmp-subdomaincenter-$domain
 		[[ ${PARALLEL} == True ]] || kill ${PID} 2>/dev/null
 		echo -e "$BOLD[*] Subdomain center$NC: $( wc -l < tmp-subdomaincenter-$domain 2>/dev/null || echo 0)"
 	}
@@ -263,7 +264,7 @@ Certspotter() {
 		[[ ${PARALLEL} == True ]] || { spinner "${BOLD}CertSpotter${NC}" &
 			PID="$!"
 		}
-		timeout $TIMEOUT curl -sk "https://api.certspotter.com/v1/issuances?domain=$domain&include_subdomains=true&expand=dns_names" | jq -r '.[].dns_names[]' | sort -u > tmp-certspotter-$domain
+		timeout $TIMEOUT curl -sk "https://api.certspotter.com/v1/issuances?domain=$domain&include_subdomains=true&expand=dns_names" 2>/dev/null | jq -r '.[].dns_names[]' 2>/dev/null | sort -u > tmp-certspotter-$domain
 		[[ ${PARALLEL} == True ]] || kill ${PID} 2>/dev/null
 		echo -e "$BOLD[*] CertSpotter$NC: $( wc -l < tmp-certspotter-$domain 2>/dev/null || echo 0)"
 	}
@@ -274,7 +275,7 @@ VirusTotal() {
   		[[ ${PARALLEL} == True ]] || { spinner "${BOLD}VirusTotal${NC}" &
     			PID="$!"
        		}
-	 	timeout $TIMEOUT curl -s "https://www.virustotal.com/vtapi/v2/domain/report?apikey=$VIRUSTOTAL_API_KEY&domain=$domain" | jq | egrep -v "http|Alexa domain info" | grep "$domain" | sed 's/[",]//g' | sed 's/^[[:space:]]*//' | sort -u > tmp-virustotal-$domain
+	 	timeout $TIMEOUT curl -s "https://www.virustotal.com/vtapi/v2/domain/report?apikey=$VIRUSTOTAL_API_KEY&domain=$domain" 2>/dev/null | jq 2>/dev/null | egrep -v "http|Alexa domain info" | grep "$domain" | sed 's/[",]//g' | sed 's/^[[:space:]]*//' | sort -u > tmp-virustotal-$domain
    		[[ ${PARALLEL} == True ]] || kill ${PID} 2>/dev/null
      		echo -e "$BOLD[*] VirusTotal$NC: $( wc -l < tmp-virustotal-$domain 2>/dev/null || echo 0)"
        }
@@ -357,8 +358,10 @@ Exclude() {
 Out() {
         [ "$silent" == False ] && { 
 		[ -n "$1" ] && output="$1" || output="$domain.txt"
-		result=$(sort -u tmp-* | wc -l)
-		sort -u tmp-* >> $output
+		# Scrub any error messages captured in tmp files
+		sort -u tmp-* | grep -vE "Error|json|unmarshal|config|invalid" > tmp-final-clean
+		result=$(wc -l < tmp-final-clean)
+		cat tmp-final-clean >> $output
 		echo -e $GREEN"[+] The Final subdomains:$NC ${result}"
 		[ $httprobe == True ] && Alive "$output" "$domain"
 		[ $delete == True ] && rm tmp-*	
@@ -378,7 +381,7 @@ RunTools() {
 		spinner "Enumerating" &
 		PID="$!"
 		export -f Subfinder Amass Assetfinder Chaos Findomain Haktrails Gau Github-subdomains Gitlab-subdomains Shosubgo Censys Crtsh JLDC Alienvault Subdomain-center Certspotter VirusTotal HackerTarget RapidDNS Webarchive Cero Puredns spinner
-		export domain silent BOLD NC TIMEOUT WORDLISTS RESOLVERS
+		export domain silent BOLD NC TIMEOUT WORDLISTS RESOLVERS GITHUB_TOKEN SHODAN_API_KEY CHAOS_API_KEY VIRUSTOTAL_API_KEY SECURITYTRAILS_API_KEY SUBFINDER_CONFIG AMASS_CONFIG
 		parallel -j18 ::: "${tools_to_run[@]}"
 		kill ${PID}
 	else
@@ -411,6 +414,15 @@ List() {
 
 Main() {
 	[ $domain == False ] && [ $hosts == False ]
+	
+	# Global Self-Configuration (Sequential)
+	[ ! -f ~/.config/haktools/haktrails-config.yml ] && [ -n "$SECURITYTRAILS_API_KEY" ] && {
+		mkdir -p ~/.config/haktools/
+		echo "securitytrails:
+  key: $SECURITYTRAILS_API_KEY" > ~/.config/haktools/haktrails-config.yml
+	}
+	[ ! -f ~/.gau.toml ] && wget -q https://raw.githubusercontent.com/lc/gau/master/.gau.toml -O ~/.gau.toml 2>/dev/null
+
 	[ $domain != False ] && { 
 		if [ "$MODE" == "PASSIVE" ]; then
 			RunTools "${passive_list[@]}"
