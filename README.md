@@ -39,7 +39,7 @@ Pirate-Subz is engineered with three distinct operational modes to optimize your
 1. **Clone & Install**:
    ```bash
    git clone https://github.com/kazisabu/Pirates_Subbers.git
-   cd Pirate-Subbers
+   cd Pirate_Subbers
    chmod +x Pirate_Subbers.sh
    ./Pirate_Subbers.sh
    ```
